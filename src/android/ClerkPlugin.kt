@@ -66,15 +66,27 @@ class ClerkPlugin : CordovaPlugin() {
                 return
             }
 
-            Clerk.initialize(
-                context = context,
-                publishableKey = publishableKey,
-                options = ClerkConfigurationOptions(
-                    sharedSessionSync = SharedSessionSyncConfig.enabled
-                )
-            )
-            isInitialized = true
-            callbackContext.success("Clerk initialized with Shared Session Sync")
+            // WRAP IN COROUTINE - Clerk.initialize() is async
+            CoroutineScope(Dispatchers.Main).launch {
+                try {
+                    Clerk.initialize(
+                        context = context,
+                        publishableKey = publishableKey,
+                        options = ClerkConfigurationOptions(
+                            sharedSessionSync = SharedSessionSyncConfig.enabled
+                        )
+                    )
+                    
+                    // WAIT for Clerk to be ready
+                    // Add a small delay to ensure Clerk is fully initialized
+                    kotlinx.coroutines.delay(500)
+                    
+                    isInitialized = true
+                    callbackContext.success("Clerk initialized with Shared Session Sync")
+                } catch (e: Exception) {
+                    callbackContext.error("Failed to initialize Clerk: ${e.message}")
+                }
+            }
         } catch (e: Exception) {
             callbackContext.error("Failed to initialize Clerk: ${e.message}")
         }
