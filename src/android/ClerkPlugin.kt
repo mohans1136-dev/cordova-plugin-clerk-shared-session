@@ -17,8 +17,9 @@ class ClerkPlugin : CordovaPlugin() {
     override fun execute(action: String, args: JSONArray, callbackContext: CallbackContext): Boolean {
         return when (action) {
             "initialize" -> {
-                val publishableKey = args.getString(0)
-                initializeClerk(publishableKey, callbackContext)
+                // Read optional JS param if passed, otherwise fallback to strings.xml
+                val jsKey = if (args.length() > 0) args.optString(0) else null
+                initializeClerk(jsKey, callbackContext)
                 true
             }
             "reloadFromSharedStorage" -> {
@@ -29,16 +30,27 @@ class ClerkPlugin : CordovaPlugin() {
         }
     }
 
-    private fun initializeClerk(publishableKey: String, callbackContext: CallbackContext) {
+    private fun initializeClerk(jsKey: String?, callbackContext: CallbackContext) {
         if (isInitialized) {
             callbackContext.success("Clerk is already initialized")
             return
         }
-        
+
         try {
             val context = cordova.activity.applicationContext
-            
-            // Pass SharedSessionSyncConfig.enabled to ClerkConfigurationOptions
+
+            // Retrieve key injected into strings.xml via Cordova plugin variable
+            val resId = context.resources.getIdentifier("clerk_publishable_key", "string", context.packageName)
+            val resourceKey = if (resId != 0) context.getString(resId) else null
+
+            // Prioritize strings.xml value, fallback to parameter from JS
+            val publishableKey = resourceKey?.takeIf { it.isNotBlank() } ?: jsKey
+
+            if (publishableKey.isNullOrBlank()) {
+                callbackContext.error("Clerk Publishable Key is missing in Extensibility Configuration and JS parameters.")
+                return
+            }
+
             Clerk.initialize(
                 context = context,
                 publishableKey = publishableKey,
@@ -58,13 +70,11 @@ class ClerkPlugin : CordovaPlugin() {
             callbackContext.error("Clerk must be initialized before reloading storage")
             return
         }
-        
-        // Execute manual reconciliation from a coroutine 
+
         CoroutineScope(Dispatchers.Main).launch {
             try {
                 val stateChanged = Clerk.reloadFromSharedStorage()
-                // Returns 1 if state changed (true), 0 if false
-                callbackContext.success(if (stateChanged) 1 else 0) 
+                callbackContext.success(if (stateChanged) 1 else 0)
             } catch (e: Exception) {
                 callbackContext.error("Error reloading shared storage: ${e.message}")
             }
