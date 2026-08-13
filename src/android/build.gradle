@@ -1,0 +1,9 @@
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Requires Clerk Android SDK 1.0.36 or later
+    implementation 'com.clerk:clerk-android-api:1.0.36'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
+}

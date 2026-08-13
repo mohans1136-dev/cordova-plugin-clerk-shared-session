@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        id="com.outsystems.clerk.sharedsession"
+        version="1.0.0">
+        
+    <name>Clerk Shared Session Sync</name>
+    <description>Cordova Plugin for Clerk Shared Session Sync on Android</description>
+    <license>MIT</license>
+
+    <!-- Expose the JS interface to OutSystems -->
+    <js-module src="www/clerkPlugin.js" name="ClerkPlugin">
+        <clobbers target="cordova.plugins.ClerkPlugin" />
+    </js-module>
+
+    <platform name="android">
+        <!-- Hook into Android config.xml to register the plugin -->
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="ClerkPlugin">
+                <param name="android-package" value="com.outsystems.clerk.sharedsession.ClerkPlugin" />
+            </feature>
+        </config-file>
+
+        <!-- Inject the native Gradle dependencies -->
+        <framework src="src/android/build.gradle" custom="true" type="gradleReference" />
+
+        <!-- Copy the Kotlin source file into the native Android build -->
+        <source-file src="src/android/ClerkPlugin.kt" target-dir="src/com/outsystems/clerk/sharedsession" />
+    </platform>
+</plugin>

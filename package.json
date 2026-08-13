@@ -1,0 +1,11 @@
+{
+  "name": "cordova-plugin-clerk-shared-session",
+  "version": "1.0.0",
+  "description": "Cordova plugin to share Clerk sessions across sibling apps",
+  "cordova": {
+    "id": "com.outsystems.clerk.sharedsession",
+    "platforms": ["android"]
+  },
+  "author": "Your Name",
+  "license": "MIT"
+}
