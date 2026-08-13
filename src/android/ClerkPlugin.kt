@@ -18,7 +18,7 @@ class ClerkPlugin : CordovaPlugin() {
         return when (action) {
             "initialize" -> {
                 // Read optional JS param if passed, otherwise fallback to strings.xml
-                val jsKey = if (args.length() > 0) args.optString(0) else null
+                val jsKey = if (args.length() > 0 && !args.isNull(0)) args.optString(0) else null
                 initializeClerk(jsKey, callbackContext)
                 true
             }
@@ -43,8 +43,8 @@ class ClerkPlugin : CordovaPlugin() {
             val resId = context.resources.getIdentifier("clerk_publishable_key", "string", context.packageName)
             val resourceKey = if (resId != 0) context.getString(resId) else null
 
-            // Prioritize strings.xml value, fallback to parameter from JS
-            val publishableKey = resourceKey?.takeIf { it.isNotBlank() } ?: jsKey
+            // Prioritize strings.xml value if it's a valid key (not the placeholder), fallback to JS
+            val publishableKey = resourceKey?.takeIf { it.isNotBlank() && !it.startsWith("$") } ?: jsKey
 
             if (publishableKey.isNullOrBlank()) {
                 callbackContext.error("Clerk Publishable Key is missing in Extensibility Configuration and JS parameters.")
@@ -71,7 +71,7 @@ class ClerkPlugin : CordovaPlugin() {
             return
         }
 
-        CoroutineScope(Dispatchers.Main).launch {
+        CoroutineScope(Dispatchers.IO).launch {
             try {
                 val stateChanged = Clerk.reloadFromSharedStorage()
                 callbackContext.success(if (stateChanged) 1 else 0)
