@@ -22,6 +22,21 @@ class ClerkPlugin : CordovaPlugin() {
                 initializeClerk(jsKey, callbackContext)
                 true
             }
+            "startSignInFlow" -> {
+                // Native authentication via Clerk's Custom Tabs
+                startSignInFlow(callbackContext)
+                true
+            }
+            "startSignUpFlow" -> {
+                // Native sign-up via Clerk's Custom Tabs
+                startSignUpFlow(callbackContext)
+                true
+            }
+            "signOut" -> {
+                // Native sign-out
+                performSignOut(callbackContext)
+                true
+            }
             "reloadFromSharedStorage" -> {
                 reloadSharedStorage(callbackContext)
                 true
@@ -62,6 +77,68 @@ class ClerkPlugin : CordovaPlugin() {
             callbackContext.success("Clerk initialized with Shared Session Sync")
         } catch (e: Exception) {
             callbackContext.error("Failed to initialize Clerk: ${e.message}")
+        }
+    }
+
+    private fun startSignInFlow(callbackContext: CallbackContext) {
+        if (!isInitialized) {
+            callbackContext.error("Clerk must be initialized before signing in")
+            return
+        }
+
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                // Native Clerk SDK opens Custom Tabs browser
+                // User completes auth in native browser (not WebView)
+                // Clerk SDK captures session automatically
+                val signInResult = Clerk.client?.signIn?.startSignInFlow(cordova.activity)
+                
+                if (signInResult != null) {
+                    // Session automatically synced to shared storage by Clerk SDK
+                    callbackContext.success("Sign in successful - session synced")
+                } else {
+                    callbackContext.error("Sign in flow returned null")
+                }
+            } catch (e: Exception) {
+                callbackContext.error("Sign in failed: ${e.message}")
+            }
+        }
+    }
+
+    private fun startSignUpFlow(callbackContext: CallbackContext) {
+        if (!isInitialized) {
+            callbackContext.error("Clerk must be initialized before signing up")
+            return
+        }
+
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                val signUpResult = Clerk.client?.signUp?.startSignUpFlow(cordova.activity)
+                
+                if (signUpResult != null) {
+                    callbackContext.success("Sign up successful - session synced")
+                } else {
+                    callbackContext.error("Sign up flow returned null")
+                }
+            } catch (e: Exception) {
+                callbackContext.error("Sign up failed: ${e.message}")
+            }
+        }
+    }
+
+    private fun performSignOut(callbackContext: CallbackContext) {
+        if (!isInitialized) {
+            callbackContext.error("Clerk must be initialized before signing out")
+            return
+        }
+
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                Clerk.client?.signOut()
+                callbackContext.success("Signed out - session cleared from shared storage")
+            } catch (e: Exception) {
+                callbackContext.error("Sign out failed: ${e.message}")
+            }
         }
     }
 
