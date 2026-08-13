@@ -3,7 +3,18 @@ repositories {
 }
 
 dependencies {
-    // Requires Clerk Android SDK 1.0.36 or later
+    // Clerk Android SDK - Core API for authentication and session management
     implementation 'com.clerk:clerk-android-api:1.0.36'
+    
+    // Clerk UI Components (optional, but recommended for AuthView)
+    implementation 'com.clerk:clerk-android-ui:1.0.36'
+    
+    // Coroutines for async operations
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
+    
+    // Required for lifecycle-aware coroutine scopes
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.9.2'
+    
+    // Androidx Activity (needed for ComponentActivity casting)
+    implementation 'androidx.activity:activity-ktx:1.8.0'
 }

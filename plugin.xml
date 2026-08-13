@@ -2,13 +2,32 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
         id="com.outsystems.clerk.sharedsession"
-        version="1.0.0">
+        version="2.0.0">
         
     <name>Clerk Shared Session Sync</name>
-    <description>Cordova Plugin for Clerk Shared Session Sync on Android</description>
+    <description>Production-ready Cordova plugin for Clerk authentication with multi-app session sharing on Android</description>
     <license>MIT</license>
-
-    <!-- Declare the build-time variable requirement -->
+    <author>Your Organization</author>
+    
+    <!-- 
+        SETUP INSTRUCTIONS:
+        
+        1. In OutSystems, go to Module > Extensibility Configurations
+        2. Add a new extensibility configuration with:
+           - Name: CLERK_PUBLISHABLE_KEY
+           - Value: Your Clerk Publishable Key (pk_test_* or pk_live_*)
+        
+        3. All participating apps MUST:
+           - Use the same Clerk Publishable Key
+           - Be signed with the same signing certificate
+           - Have minimum SDK version 24+
+           - Have the Native API enabled in Clerk Dashboard
+        
+        4. In Clerk Dashboard (https://dashboard.clerk.com/~/native-applications):
+           - Enable the Native API
+           - Add your app's namespace and package name
+    -->
+    
     <preference name="CLERK_PUBLISHABLE_KEY" />
 
     <js-module src="www/clerkPlugin.js" name="ClerkPlugin">
@@ -16,22 +35,28 @@
     </js-module>
 
     <platform name="android">
+        <!-- Required Android permissions -->
         <config-file target="AndroidManifest.xml" parent="/*">
+            <!-- Internet permission required for authentication -->
             <uses-permission android:name="android.permission.INTERNET" />
         </config-file>
 
+        <!-- Register plugin with Cordova -->
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="ClerkPlugin">
                 <param name="android-package" value="com.outsystems.clerk.sharedsession.ClerkPlugin" />
             </feature>
         </config-file>
 
-        <!-- Inject the variable into Android's strings.xml resource file -->
+        <!-- Inject Clerk Publishable Key into strings.xml (populated via CLERK_PUBLISHABLE_KEY variable) -->
         <config-file target="res/values/strings.xml" parent="/*">
             <string name="clerk_publishable_key">$CLERK_PUBLISHABLE_KEY</string>
         </config-file>
 
+        <!-- Include Clerk SDK and dependencies via Gradle -->
         <framework src="src/android/build.gradle" custom="true" type="gradleReference" />
+        
+        <!-- Include plugin source code -->
         <source-file src="src/android/ClerkPlugin.kt" target-dir="src/com/outsystems/clerk/sharedsession" />
     </platform>
 </plugin>
