@@ -35,6 +35,11 @@
     </js-module>
 
     <platform name="android">
+        <!-- Enable Kotlin support (required for Cordova Android) -->
+        <config-file target="res/xml/config.xml" parent="/*">
+            <preference name="GradlePluginKotlinEnabled" value="true" />
+        </config-file>
+
         <!-- Required Android permissions -->
         <config-file target="AndroidManifest.xml" parent="/*">
             <!-- Internet permission required for authentication -->
@@ -57,6 +62,7 @@
         <framework src="src/android/build.gradle" custom="true" type="gradleReference" />
         
         <!-- Include plugin source code -->
-        <source-file src="src/android/ClerkPlugin.kt" target-dir="src/com/outsystems/clerk/sharedsession" />
+        <!-- IMPORTANT: Kotlin files MUST be in src/main/kotlin (Cordova Android 9.0.0+) -->
+        <source-file src="src/android/ClerkPlugin.kt" target-dir="src/main/kotlin/com/outsystems/clerk/sharedsession" />
     </platform>
 </plugin>
