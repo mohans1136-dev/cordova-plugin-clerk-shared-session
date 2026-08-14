@@ -35,9 +35,10 @@
     </js-module>
 
     <platform name="android">
-        <!-- Enable Kotlin support (required for Cordova Android) -->
+        <!-- Enable Kotlin support and pin the Kotlin Gradle plugin version -->
         <config-file target="res/xml/config.xml" parent="/*">
             <preference name="GradlePluginKotlinEnabled" value="true" />
+            <preference name="GradlePluginKotlinVersion" value="2.4.0" />
         </config-file>
 
         <!-- Required Android permissions -->
