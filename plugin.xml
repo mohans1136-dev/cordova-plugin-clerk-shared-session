@@ -35,11 +35,13 @@
     </js-module>
 
     <platform name="android">
-        <!-- Enable Kotlin support and pin the Kotlin Gradle plugin version -->
-        <config-file target="res/xml/config.xml" parent="/*">
+
+        <config-file target="config.xml" parent="/*">
             <preference name="GradlePluginKotlinEnabled" value="true" />
-            <preference name="GradlePluginKotlinVersion" value="2.4.0" />
+            <preference name="GradlePluginKotlinCodeStyle" value="official" />
         </config-file>
+
+
 
         <!-- Required Android permissions -->
         <config-file target="AndroidManifest.xml" parent="/*">
